@@ -6,7 +6,7 @@ import store from "./store/index.js";
 // TODO: 서버 요청 부분
 // [V] 웹 서버를 띄운다.
 // [V] 서버에 새로운 메뉴명이 추가될 수 있도록 요청한다.
-// [] 서버에 카테고리별 메뉴리스트를 불러올 수 있도록 요청한다.
+// [V] 서버에 카테고리별 메뉴리스트를 불러올 수 있도록 요청한다.
 // [] 서버에 저장된 메뉴가 수정되도록 요청한다.
 // [] 서버에 메뉴의 품정상태를 토글될 수 있도록 요청한다.
 // [] 서버에 메뉴가 삭제되도록 요청한다.
@@ -178,13 +178,16 @@ function App() {
       }
     });
 
-    $("nav").addEventListener("click", (e) => {
+    $("nav").addEventListener("click", async (e) => {
       const isCategoryButton =
         e.target.classList.contains("cafe-category-name");
       if (isCategoryButton) {
         const categoryName = e.target.dataset.categoryName;
         this.currentCategory = categoryName;
         $("#category-title").innerText = `${e.target.innerText} 메뉴 관리`;
+        this.menu[this.currentCategory] = await MenuApi.getAllMenuByCategory(
+          this.currentCategory
+        );
         render();
       }
     });
