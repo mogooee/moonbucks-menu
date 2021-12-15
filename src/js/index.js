@@ -31,12 +31,7 @@ function App() {
   };
   this.currentCategory = "espresso";
 
-  this.init = async () => {
-    if (store.getLocalStorage()) {
-      this.menu[this.currentCategory] = await MenuApi.getAllMenuByCategory(
-        this.currentCategory
-      );
-    }
+  this.init = () => {
     render();
     initEventListeners();
   };
