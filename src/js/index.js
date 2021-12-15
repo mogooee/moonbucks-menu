@@ -4,8 +4,8 @@ import store from "./store/index.js";
 // FIXME: Step3 요구사항 - 서버와의 통신을 통해 메뉴 관리하기
 
 // TODO: 서버 요청 부분
-// [] 웹 서버를 띄운다.
-// [] 서버에 새로운 메뉴명이 추가될 수 있도록 요청한다.
+// [V] 웹 서버를 띄운다.
+// [V] 서버에 새로운 메뉴명이 추가될 수 있도록 요청한다.
 // [] 서버에 카테고리별 메뉴리스트를 불러올 수 있도록 요청한다.
 // [] 서버에 저장된 메뉴가 수정되도록 요청한다.
 // [] 서버에 메뉴의 품정상태를 토글될 수 있도록 요청한다.
@@ -25,13 +25,18 @@ const MenuApi = {
   async getAllMenuByCategory(category) {
     const response = await fetch(`${BASE_URL}/category/${category}/menu`);
     return response.json();
-    // await fetch(`${BASE_URL}/category/${category}/menu`)
-    //   .then((response) => {
-    //     return response.json();
-    //   })
-    //   .then((data) => {
-    //     return data;
-    //   });
+  },
+  async createMenu(category, name) {
+    const response = await fetch(`${BASE_URL}/category/${category}/menu`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name }),
+    });
+    if (!response.ok) {
+      console.error("에러가 발생했습니다.");
+    }
   },
 };
 
@@ -45,6 +50,7 @@ function App() {
     desert: [],
   };
   this.currentCategory = "espresso";
+
   this.init = async () => {
     if (store.getLocalStorage()) {
       this.menu[this.currentCategory] = await MenuApi.getAllMenuByCategory(
@@ -102,32 +108,12 @@ function App() {
       return;
     }
     const menuName = $("#menu-name").value;
-
-    await fetch(`${BASE_URL}/category/${this.currentCategory}/menu`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: menuName }),
-    }).then((response) => {
-      return response.json();
-    });
-
+    await MenuApi.createMenu(this.currentCategory, menuName);
     this.menu[this.currentCategory] = await MenuApi.getAllMenuByCategory(
       this.currentCategory
     );
     render();
     $("#menu-name").value = "";
-
-    // await fetch(`${BASE_URL}/category/${this.currentCategory}/menu`)
-    //   .then((response) => {
-    //     return response.json();
-    //   })
-    //   .then((data) => {
-    //     this.menu[this.currentCategory] = data;
-    //     render();
-    //     $("#menu-name").value = "";
-    //   });
   };
 
   //수정
