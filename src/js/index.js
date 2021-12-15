@@ -1,82 +1,24 @@
 import { $ } from "./utils/dom.js";
 import store from "./store/index.js";
+import MenuApi from "./api/index.js";
 
 // FIXME: Step3 요구사항 - 서버와의 통신을 통해 메뉴 관리하기
 
 // TODO: 서버 요청 부분
-// [V] 웹 서버를 띄운다.
-// [V] 서버에 새로운 메뉴명이 추가될 수 있도록 요청한다.
-// [V] 서버에 카테고리별 메뉴리스트를 불러올 수 있도록 요청한다.
-// [V] 서버에 저장된 메뉴가 수정되도록 요청한다.
-// [V] 서버에 메뉴의 품절상태를 토글될 수 있도록 요청한다.
-// [V] 서버에 메뉴가 삭제되도록 요청한다.
+// - [V] 웹 서버를 띄운다.
+// - [V] 서버에 새로운 메뉴명이 추가될 수 있도록 요청한다.
+// - [V] 서버에 카테고리별 메뉴리스트를 불러올 수 있도록 요청한다.
+// - [V] 서버에 저장된 메뉴가 수정되도록 요청한다.
+// - [V] 서버에 메뉴의 품절상태를 토글될 수 있도록 요청한다.
+// - [V] 서버에 메뉴가 삭제되도록 요청한다.
 
 // TODO: 리팩토링 부분
-// - [] localStorage에 저장하는 로직은 지운다.
-// - [] fetch 비동기 api를 사용하는 부분을 async await을 사용하여 구현한다.
+// - [V] localStorage에 저장하는 로직은 지운다.
+// - [V] fetch 비동기 api를 사용하는 부분을 async await을 사용하여 구현한다.
 
 // TODO: 사용자 경험
 // - [] API 통신이 실패하는 경우에 대해 사용자가 알 수 있게 alert으로 예외처리를 진행한다.
 // - [] 중복되는 메뉴는 추가할 수 없다.
-
-const BASE_URL = "http://localhost:3000/api";
-
-const MenuApi = {
-  async getAllMenuByCategory(category) {
-    const response = await fetch(`${BASE_URL}/category/${category}/menu`);
-    return response.json();
-  },
-  async createMenu(category, name) {
-    const response = await fetch(`${BASE_URL}/category/${category}/menu`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name }),
-    });
-    if (!response.ok) {
-      console.error("에러가 발생했습니다.");
-    }
-  },
-  async updateMenu(category, name, menuId) {
-    const response = await fetch(
-      `${BASE_URL}/category/${category}/menu/${menuId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name }),
-      }
-    );
-    if (!response.ok) {
-      console.error("에러가 발생했습니다.");
-    }
-    return response.json();
-  },
-  async toggleSoldOutMenu(category, menuId) {
-    const response = await fetch(
-      `${BASE_URL}/category/${category}/menu/${menuId}/soldout`,
-      {
-        method: "PUT",
-      }
-    );
-    if (!response.ok) {
-      console.error("에러가 발생했습니다.");
-    }
-  },
-  async deleteMenu(category, menuId) {
-    const response = await fetch(
-      `${BASE_URL}/category/${category}/menu/${menuId}`,
-      {
-        method: "DELETE",
-      }
-    );
-    if (!response.ok) {
-      console.error("에러가 발생했습니다.");
-    }
-  },
-};
 
 function App() {
   // 상태는 변하는 데이터, 이 앱에서 변하는 것이 무엇인가 - 메뉴이름
