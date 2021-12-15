@@ -1,38 +1,25 @@
-// FIXME: Step2 요구사항 - 상태 관리로 메뉴 관리하기
-// 상태를 다룰 수 있으면 사용자와의 상호작용을 다룰 수 있다.
-// 카탈로그 같은 정적인 웹페이지가 아닌 카톡, 카뱅같은 사용자와의 인터랙션을 잘 반영한 동적인 웹애플리케이션을 만들기 위해 필수!
-
-// 회고
-// - '상태값'의 중요성
-// - 렌더링이 어떻게 되는지 확인
-
-// TODO: localStorage Read & Wright
-// - [V] localStorage에 데이터를 저장한다. (Read)
-//   -[V] 메뉴를 추가할 때
-//   -[V] 메뉴를 수정할 때
-//   -[V] 메뉴를 삭제할 때
-// - [V] 새로고침해도 데이터가 남아있게 한다. (Wright)
-
-// TODO: 카테고리별 메뉴판 관리
-// - [V] 에스프레소 메뉴판 관리
-// - [V] 프라푸치노 메뉴판 관리
-// - [V] 블렌디드 메뉴판 관리
-// - [V] 티바나 메뉴판 관리
-// - [V] 디저트 메뉴판 관리
-
-// TODO: 페이지 접근시 최초 데이터 Read & Rendering
-// - [V] 페이지에 최초로 접근할 때는 localStorage에 에스프레소 메뉴를 읽어온다.(Read)
-// - [V] 에스프레소 메뉴를 페이지에 그린다. (Rendering)
-
-// TODO: 품절 상태 관리
-// - [V] 품절 버튼을 추가
-// - [V] 품절 버튼을 클릭하면 localStorage에 상태값이 저장
-// - [V] 클릭이벤트에서 가장 가까운 li태그의 class 속성 값에 sold-out을 추가
-
-//FIXME: CORS 오류 - Open with Live Server로 해결
-
 import { $ } from "./utils/dom.js";
 import store from "./store/index.js";
+
+// FIXME: Step3 요구사항 - 서버와의 통신을 통해 메뉴 관리하기
+
+// TODO: 서버 요청 부분
+// [] 웹 서버를 띄운다.
+// [] 서버에 새로운 메뉴명이 추가될 수 있도록 요청한다.
+// [] 서버에 카테고리별 메뉴리스트를 불러올 수 있도록 요청한다.
+// [] 서버에 저장된 메뉴가 수정되도록 요청한다.
+// [] 서버에 메뉴의 품정상태를 토글될 수 있도록 요청한다.
+// [] 서버에 메뉴가 삭제되도록 요청한다.
+
+// TODO: 리팩토링 부분
+// - [] localStorage에 저장하는 로직은 지운다.
+// - [] fetch 비동기 api를 사용하는 부분을 async await을 사용하여 구현한다.
+
+// TODO: 사용자 경험
+// - [] API 통신이 실패하는 경우에 대해 사용자가 알 수 있게 alert으로 예외처리를 진행한다.
+// - [] 중복되는 메뉴는 추가할 수 없다.
+
+const BASE_URL = "http://localhost:3000/api";
 
 function App() {
   // 상태는 변하는 데이터, 이 앱에서 변하는 것이 무엇인가 - 메뉴이름
@@ -93,16 +80,32 @@ function App() {
     $(".menu-count").innerText = `총 ${menuCount} 개`;
   };
 
-  const addMenuName = () => {
+  const addMenuName = async () => {
     if (!$("#menu-name").value) {
       alert("값을 입력해주세요.");
       return;
     }
-    const MenuName = $("#menu-name").value;
-    this.menu[this.currentCategory].push({ name: MenuName });
-    store.setLocalStorage(this.menu);
-    render();
-    $("#menu-name").value = "";
+    const menuName = $("#menu-name").value;
+
+    await fetch(`${BASE_URL}/category/${this.currentCategory}/menu`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: menuName }),
+    }).then((response) => {
+      return response.json();
+    });
+
+    await fetch(`${BASE_URL}/category/${this.currentCategory}/menu`)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        this.menu[this.currentCategory] = data;
+        render();
+        $("#menu-name").value = "";
+      });
   };
 
   //수정
