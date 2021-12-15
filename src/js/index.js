@@ -9,20 +9,20 @@
 // - [V] 새로고침해도 데이터가 남아있게 한다. (Wright)
 
 // TODO: 카테고리별 메뉴판 관리
-// - [] 에스프레소 메뉴판 관리
-// - [] 프라푸치노 메뉴판 관리
-// - [] 블렌디드 메뉴판 관리
-// - [] 티바나 메뉴판 관리
-// - [] 디저트 메뉴판 관리
+// - [V] 에스프레소 메뉴판 관리
+// - [V] 프라푸치노 메뉴판 관리
+// - [V] 블렌디드 메뉴판 관리
+// - [V] 티바나 메뉴판 관리
+// - [V] 디저트 메뉴판 관리
 
 // TODO: 페이지 접근시 최초 데이터 Read & Rendering
-// - [] 페이지에 최초로 접근할 때는 localStorage에 에스프레소 메뉴를 읽어온다.(Read)
-// - [] 에스프레소 메뉴를 페이지에 그린다. (Rendering)
+// - [V] 페이지에 최초로 접근할 때는 localStorage에 에스프레소 메뉴를 읽어온다.(Read)
+// - [V] 에스프레소 메뉴를 페이지에 그린다. (Rendering)
 
 // TODO: 품절 상태 관리
-// - [] 품절 버튼을 추가
-// - [] 품절 버튼을 클릭하면 localStorage에 상태값이 저장
-// - [] 클릭이벤트에서 가장 가까운 li태그의 class 속성 값에 sold-out을 추가
+// - [V] 품절 버튼을 추가
+// - [V] 품절 버튼을 클릭하면 localStorage에 상태값이 저장
+// - [V] 클릭이벤트에서 가장 가까운 li태그의 class 속성 값에 sold-out을 추가
 
 //반복되는 코드를 간결하게 나타냄
 const $ = (selector) => document.querySelector(selector);
@@ -58,7 +58,16 @@ function App() {
       .map((menuItem, index) => {
         //data를 html마크업하고 싶을 때 쓰는 표준 속성
         return `<li data-menu-id="${index}" class="menu-list-item d-flex items-center py-2">
-      <span class="w-100 pl-2 menu-name">${menuItem.name}</span>
+      <span id="menu" class="w-100 pl-2 menu-name ${
+        menuItem.soldOut ? "sold-out" : ""
+      }" >${menuItem.name}</span>
+      <button
+        type="button"
+        class="bg-gray-50 text-gray-500 text-sm mr-1 menu-sold-out-button"
+      >
+        품절
+      </button>
+
       <button
         type="button"
         class="bg-gray-50 text-gray-500 text-sm mr-1 menu-edit-button"
@@ -118,6 +127,15 @@ function App() {
     }
   };
 
+  const soldOutMenu = (e) => {
+    const menuId = e.target.closest("li").dataset.menuId;
+    //undefined->true->false...
+    this.menu[this.currentCategory][menuId].soldOut =
+      !this.menu[this.currentCategory][menuId].soldOut;
+    store.setLocalStorage(this.menu);
+    render();
+  };
+
   // 메뉴의 이름을 입력받는 것
   $("#menu-name").addEventListener("keypress", (e) => {
     if (e.key !== "Enter") {
@@ -132,14 +150,21 @@ function App() {
     e.preventDefault();
   });
 
-  //수정, 삭제
+  //수정, 삭제, 품절
   $("#menu-list").addEventListener("click", (e) => {
     if (e.target.classList.contains("menu-edit-button")) {
       updateMenuName(e);
+      return;
     }
 
     if (e.target.classList.contains("menu-remove-button")) {
       removeMenuName(e);
+      return;
+    }
+
+    if (e.target.classList.contains("menu-sold-out-button")) {
+      soldOutMenu(e);
+      return;
     }
   });
 
